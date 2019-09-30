@@ -16,17 +16,17 @@ def tanh(x, derive=False): # x is the input, derive is do derivative or not
 
 
 epochs = 1
-eta = 0.01# learning rate
+eta = 0.1# learning rate
 
 x = np.array([
-    [0, 0, 0],  # data point (x,y,z, bias) 
-    [0, 0, 1],  
-    [0, 1, 0],  
-    [0, 1, 1],
-    [1, 0, 0],   
-    [1, 0, 1],  
-    [1, 1, 0],  
-    [1, 1, 1],
+    [0, 0, 0, 1.0],  # data point (x,y,z, bias) 
+    [0, 0, 1, 1.0],  
+    [0, 1, 0, 1.0],  
+    [0, 1, 1, 1.0],
+    [1, 0, 0, 1.0],   
+    [1, 0, 1, 1.0],  
+    [1, 1, 0, 1.0],  
+    [1, 1, 1, 1.0],
 ]) 
 
 # labels
@@ -41,62 +41,66 @@ y = np.array([[1,0], #outputs
              ])
   
 # weights in format - w12 = layer 1, neuron 2
-w1 = np.array([[0.1,0.2,0.3], 
-               [0.1,0.1,0.1],
-                [0.3,0.3,0.3]])
-b1 = np.array([0.2, 0.1, 0.9])
+w1 = np.array([[0.1,0.2,0.3, 0.2], 
+               [0.1,0.1,0.1, 0.1],
+                [0.3,0.3,0.3, 0.9]])
 
 
-w2 = np.array([[0.0,0.0,0.0],
-                 [0.1,0.1,0.1], 
-                 [0.1,0.1,0.1],
-                 [0.2,0.2,0.2]])
-b2 = np.array([0.0, 0.2, 0.0, -0.1])
+w2 = np.array([[0.0,0.0,0.0,0.0],
+                 [0.1,0.1,0.1,0.2], 
+                 [0.1,0.1,0.1,0.0],
+                 [0.2,0.2,0.2,-0.1]])
 
 
 
-w3 = np.array([[1.5,1.2,1.0,0.0], [0.0,0.8,0.1,0.0]])
-b3 = np.array([[-0.2, -0.1]])
+w3 = np.array([[1.5,1.2,1.0,0.0,-0.2], [0.0,0.8,0.1,0.0, -0.1]])
+
 
 
 for e in range(epochs):
     ee = 0 # errorx
-    for i in range(2):
+    for i in range(8):
         # layer 1
-        v1 = np.dot(x[i, :], np.transpose(w1)) + b1
+        v1 = np.dot(x[i, :], np.transpose(w1))
         y11D = tanh(v1)
-
+        y11D = np.append(y11D, 1)
         # layer 2
-        v2 = np.dot(y11D, np.transpose(w2)) + b2
-        y2 = tanh(v2)
-                #layer 3
 
-        y3 = np.dot(y2, np.transpose(w3)) + b3
+        v2 = np.dot(y11D, np.transpose(w2))
+        y2 = tanh(v2)
+        v2 = np.append(v2, 1)
+
+        #layer 3
+        y3 = np.dot(y2, np.transpose(w3))
+
+        #backprop 
         err = np.array(y[i, :]-y3)
         y2 = np.array([y2])
-        # print(err)
-        dEdW3 = np.dot(np.transpose(err),y2)
-        # print(dEdW3)
+        # e/dw3
+        dEdW3 = np.dot(np.transpose(np.array([err])),y2)
 
 
         y1 = np.array([y11D])
-
         errw3 = np.array(np.dot(err, w3))
-        t2 = np.array([tanh(v2, True)])
-        tanhv2errw3 = np.dot(t2, np.transpose(errw3))
+        tanhv2errw3 = errw3 * np.array([tanh(v2, True)])
+        # e/dw2
+        dEdW2 = np.dot(np.transpose(tanhv2errw3), y1)
+
+
+
         
-        
-        dEdW2 = np.dot(tanhv2errw3, y1)
+        tanhv2errw3w2 = np.dot(tanhv2errw3, w2)
+        tanhv2errw3w2tanhv1 = tanhv2errw3w2 * np.array([tanh(v1, True)])
+        dEdW1 = np.dot(np.transpose(tanhv2errw3w2tanhv1), np.array([x[i, :]]))
 
 
-        print(y1, '------',tanhv2errw3w2)
+        w3 = w3 - eta*dEdW3
+        w2 = w2 - eta*dEdW2
+        w1 = w1 - eta*dEdW1
 
-
-        dEdW2 = np.dot(w2, np.transpose(tanhv2errw3w2))
-        
-
-
-
+print('w1----',w1)
+print('w2----',w2)
+print('w3----', w3)
 
 
 
