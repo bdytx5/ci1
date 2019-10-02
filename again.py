@@ -68,7 +68,6 @@ for e in range(epochs):
         y2 = tanh(v2)
         #layer 3
         y3 = np.dot(np.append(y2,1), np.transpose(w3))
-
         #backprop 
         err = -np.array(y[i, :]-y3)
         y2 = np.array([y2])
@@ -76,15 +75,16 @@ for e in range(epochs):
 
 
         y1 = np.array([y1])
-        errw3 = np.array(np.dot(err, w3))
-        tanhv2errw3 = errw3 * np.append(tanh(v2, True),1)
-        dEdW2 = np.dot(np.transpose(np.array([tanhv2errw3[0:4]])), np.array([np.append(y1,1)])) # e/dw2
+        print(w3.shape)
+        errw3 = np.array(np.dot(err, w3))[0:(w3.shape[1] - 1)] # exclude bias since its not part of de/dy2
+        tanhv2errw3 = errw3 * tanh(v2, True)
+        dEdW2 = np.dot(np.transpose(np.array([tanhv2errw3])),np.array([np.append(y1,1)]))# e/dw2
 
 
 
-        tanhv2errw3w2 = np.dot(tanhv2errw3[0:4], w2)
-        tanhv2errw3w2tanhv1 = tanhv2errw3w2 * np.append(tanh(v1, True), 1)
-        dEdW1 = np.dot(np.transpose(np.array([tanhv2errw3w2tanhv1[0:3]])), np.array([x[i, :]]))# e/dw1
+        tanhv2errw3w2 = np.dot(tanhv2errw3, w2)[0:(w2.shape[1] - 1)]
+        tanhv2errw3w2tanhv1 = tanhv2errw3w2 * tanh(v1, True)
+        dEdW1 = np.dot(np.transpose(np.array([tanhv2errw3w2tanhv1])), np.array([x[i, :]]))# e/dw1
 
         # adjustments
         w3 = w3 - eta*dEdW3
