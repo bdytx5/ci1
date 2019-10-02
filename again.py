@@ -4,18 +4,19 @@ import math
 
 
 def eee(val):
-    return np.exp(np.clip(val, -709, 709))
+    return np.exp(np.clip(val, -709,709))
 
 
 def tanh(x, derive=False): # x is the input, derive is do derivative or not
     if derive:
+        print(x)
         return (1.0 - x**2)
                            # depends on how you call the function
     return ((eee(x)-eee(-x))/(eee(x)+eee(-x)))
 
 
 
-epochs = 1
+epochs = 10000
 eta = 0.1# learning rate
 
 x = np.array([
@@ -39,6 +40,8 @@ y = np.array([[1,0], #outputs
               [1,0],
               [1,0]
              ])
+
+# n1_w = np.random.normal(0,2,(4, 4))
   
 # weights in format - w12 = layer 1, neuron 2
 w1 = np.array([[0.1,0.2,0.3, 0.2], 
@@ -51,9 +54,8 @@ w2 = np.array([[0.0,0.0,0.0,0.0],
                  [0.1,0.1,0.1,0.0],
                  [0.2,0.2,0.2,-0.1]])
 
-
-
-w3 = np.array([[1.5,1.2,1.0,0.0,-0.2], [0.0,0.8,0.1,0.0, -0.1]])
+w3 = np.array([[1.5,1.2,1.0,0.0,-0.2], 
+                [0.0,0.8,0.1,0.0, -0.1]])
 
 
 
@@ -75,7 +77,6 @@ for e in range(epochs):
 
 
         y1 = np.array([y1])
-        print(w3.shape)
         errw3 = np.array(np.dot(err, w3))[0:(w3.shape[1] - 1)] # exclude bias since its not part of de/dy2
         tanhv2errw3 = errw3 * tanh(v2, True)
         dEdW2 = np.dot(np.transpose(np.array([tanhv2errw3])),np.array([np.append(y1,1)]))# e/dw2
@@ -85,11 +86,12 @@ for e in range(epochs):
         tanhv2errw3w2 = np.dot(tanhv2errw3, w2)[0:(w2.shape[1] - 1)]
         tanhv2errw3w2tanhv1 = tanhv2errw3w2 * tanh(v1, True)
         dEdW1 = np.dot(np.transpose(np.array([tanhv2errw3w2tanhv1])), np.array([x[i, :]]))# e/dw1
-
+        ee = ee + ((1.0/2.0) * np.power((y[i, :] - y3), 2.0))
         # adjustments
         w3 = w3 - eta*dEdW3
         w2 = w2 - eta*dEdW2
         w1 = w1 - eta*dEdW1
+        print(ee)
 
 print('w1----',w1)
 print('w2----',w2)
