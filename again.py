@@ -4,19 +4,18 @@ import math
 
 
 def eee(val):
-    return np.exp(np.clip(val, -709,709))
+    return np.exp(val)
 
 
 def tanh(x, derive=False): # x is the input, derive is do derivative or not
     if derive:
-        print(x)
         return (1.0 - x**2)
                            # depends on how you call the function
     return ((eee(x)-eee(-x))/(eee(x)+eee(-x)))
 
 
 
-epochs = 10000
+epochs = 1
 eta = 0.1# learning rate
 
 x = np.array([
@@ -58,7 +57,6 @@ w3 = np.array([[1.5,1.2,1.0,0.0,-0.2],
                 [0.0,0.8,0.1,0.0, -0.1]])
 
 
-
 for e in range(epochs):
     ee = 0 # errorx
     for i in range(8):
@@ -72,19 +70,12 @@ for e in range(epochs):
         y3 = np.dot(np.append(y2,1), np.transpose(w3))
         #backprop 
         err = -np.array(y[i, :]-y3)
-        y2 = np.array([y2])
         dEdW3 = np.dot(np.transpose(np.array([err])),np.array([np.append(y2,1)])) # e/dw3
-
-
-        y1 = np.array([y1])
         errw3 = np.array(np.dot(err, w3))[0:(w3.shape[1] - 1)] # exclude bias since its not part of de/dy2
-        tanhv2errw3 = errw3 * tanh(v2, True)
+        tanhv2errw3 = errw3 * tanh(y2, True)
         dEdW2 = np.dot(np.transpose(np.array([tanhv2errw3])),np.array([np.append(y1,1)]))# e/dw2
-
-
-
         tanhv2errw3w2 = np.dot(tanhv2errw3, w2)[0:(w2.shape[1] - 1)]
-        tanhv2errw3w2tanhv1 = tanhv2errw3w2 * tanh(v1, True)
+        tanhv2errw3w2tanhv1 = tanhv2errw3w2 * tanh(y1, True)
         dEdW1 = np.dot(np.transpose(np.array([tanhv2errw3w2tanhv1])), np.array([x[i, :]]))# e/dw1
         ee = ee + ((1.0/2.0) * np.power((y[i, :] - y3), 2.0))
         # adjustments
@@ -100,22 +91,10 @@ print('w3----', w3)
 
 
 
-        
-        # dy_dw3 = np.array([y2])
-        # dEdw2 = np.dot(np.transpose(np.array([tanh(y2, True)])), np.dot(err,w3))
 
-        
-        # # dE_dw = np.dot(np.transpose(dE_dY), dy_dw)
-        # # w3 = w3 - (eta * dE_dw)
-        # #dE/dw2 
-        # dE_w2 = np.dot(np.transpose(w3), np.transpose(dE_dY)) 
-        # print(dE_w2)
 
-        # dE_w2 = np.dot(tanh(y2, True), dE_w2)
-        # # dE_w2 = np.dot(np.array([y1]), dE_w2)
-        # print(dE_w2)
-        # # dE_w1 = np.dot(np.transpose(w2), np.transpose(dE_dY)) 
-        # # dE_w1 = np.dot(np.array([y1]), dE_w1)
+
+
 
 
 
