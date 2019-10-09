@@ -15,8 +15,12 @@ def tanh(x, derive=False): # x is the input, derive is do derivative or not
 
 
 
-epochs = 1
+epochs = 1000
 eta = 0.1# learning rate
+B = 0.7
+bw1 = 0.0
+bw2 = 0.0
+bw3 = 0.0
 
 x = np.array([
     [0, 0, 0, 1],  # data point (x,y,z, bias) 
@@ -56,9 +60,13 @@ w2 = np.array([[0.0,0.0,0.0,0.0],
 w3 = np.array([[1.5,1.2,1.0,0.0,-0.2], 
                 [0.0,0.8,0.1,0.0, -0.1]])
 
+bw1 = np.array(np.zeros((9,3,4)))
+bw2 = np.array(np.zeros((9,4,4)))
+bw3 = np.array(np.zeros((9,2,5)))
 
 for e in range(epochs):
     ee = 0 # errorx
+    # 3 * 8 WEIGHT ADJUSTMENTS 
     for i in range(8):
         # layer 1
         v1 = np.dot(x[i, :], np.transpose(w1))
@@ -71,17 +79,25 @@ for e in range(epochs):
         #backprop 
         err = -np.array(y[i, :]-y3)
         dEdW3 = np.dot(np.transpose(np.array([err])),np.array([np.append(y2,1)])) # e/dw3
+
         errw3 = np.array(np.dot(err, w3))[0:(w3.shape[1] - 1)] # exclude bias since its not part of de/dy2
         tanhv2errw3 = errw3 * tanh(y2, True)
         dEdW2 = np.dot(np.transpose(np.array([tanhv2errw3])),np.array([np.append(y1,1)]))# e/dw2
+
         tanhv2errw3w2 = np.dot(tanhv2errw3, w2)[0:(w2.shape[1] - 1)]
         tanhv2errw3w2tanhv1 = tanhv2errw3w2 * tanh(y1, True)
         dEdW1 = np.dot(np.transpose(np.array([tanhv2errw3w2tanhv1])), np.array([x[i, :]]))# e/dw1
+        
         ee = ee + ((1.0/2.0) * np.power((y[i, :] - y3), 2.0))
         # adjustments
-        w3 = w3 - eta*dEdW3
-        w2 = w2 - eta*dEdW2
-        w1 = w1 - eta*dEdW1
+        w1 = bw1[i] + (w1 - eta*dEdW1)
+        w2 = bw2[i] + (w2 - eta*dEdW2)
+        w3 = bw3[i] + (w3 - eta*dEdW3)
+        # x = B*eta*dEdW1
+        bw1[i+1] = B*eta*dEdW1
+        bw2[i+1] = B*eta*dEdW2
+        bw3[i+1] = B*eta*dEdW3
+
         print(ee)
 
 print('w1----',w1)
