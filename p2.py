@@ -16,3 +16,6 @@ x = np.array(res).flatten()
 
 plt.imshow(res, cmap='gray')
 plt.show()
+
+
+# add ones to inputs 

@@ -15,7 +15,7 @@ def tanh(x, derive=False): # x is the input, derive is do derivative or not
 
 
 
-epochs = 1
+epochs = 1000
 eta = 0.1# learning rate
 B = 0.5
 bw1 = 0.0
@@ -107,14 +107,25 @@ print('w3----', w3)
 
 # test 
 
-act = y[i].argmax()
-pred = y3.argmax()
-conf[act][pred] = conf[act][pred] + 1
 
 
 
 
 
+for i in range(8):
+        # layer 1
+    v1 = np.dot(x[i, :], np.transpose(w1))
+    y1 = tanh(v1)
+        # layer 2
+    v2 = np.dot(np.append(y1,1), np.transpose(w2))
+    y2 = tanh(v2)
+        #layer 3
+    y3 = np.dot(np.append(y2,1), np.transpose(w3))
+        #backprop 
+    err = -np.array(y[i, :]-y3)
+    act = y[i].argmax()
+    pred = y3.argmax()
+    conf[act][pred] = conf[act][pred] + 1
 
 
 
