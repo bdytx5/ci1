@@ -15,9 +15,9 @@ def tanh(x, derive=False): # x is the input, derive is do derivative or not
 
 
 
-epochs = 1000
+epochs = 1
 eta = 0.1# learning rate
-B = 0.7
+B = 0.5
 bw1 = 0.0
 bw2 = 0.0
 bw3 = 0.0
@@ -63,6 +63,7 @@ w3 = np.array([[1.5,1.2,1.0,0.0,-0.2],
 bw1 = np.array(np.zeros((9,3,4)))
 bw2 = np.array(np.zeros((9,4,4)))
 bw3 = np.array(np.zeros((9,2,5)))
+conf = np.array(np.zeros((2,2)))
 
 for e in range(epochs):
     ee = 0 # errorx
@@ -98,15 +99,17 @@ for e in range(epochs):
         bw2[i+1] = B*eta*dEdW2
         bw3[i+1] = B*eta*dEdW3
 
-        print(ee)
+        
 
 print('w1----',w1)
 print('w2----',w2)
 print('w3----', w3)
 
+# test 
 
-
-
+act = y[i].argmax()
+pred = y3.argmax()
+conf[act][pred] = conf[act][pred] + 1
 
 
 
