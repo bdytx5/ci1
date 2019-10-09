@@ -15,7 +15,7 @@ def tanh(x, derive=False): # x is the input, derive is do derivative or not
 
 
 
-epochs = 1
+epochs = 1000
 eta = 0.1# learning rate
 
 x = np.array([
@@ -40,21 +40,23 @@ y = np.array([[1,0], #outputs
               [1,0]
              ])
 
-# n1_w = np.random.normal(0,2,(4, 4))
-  
+w1 = np.random.normal(0,2,(3, 4))
+w2 = np.random.normal(0,2,(4, 4))
+w3 = np.random.normal(0,2,(2, 5))
+
 # weights in format - w12 = layer 1, neuron 2
-w1 = np.array([[0.1,0.2,0.3, 0.2], 
-               [0.1,0.1,0.1, 0.1],
-                [0.3,0.3,0.3, 0.9]])
+# w1 = np.array([[0.1,0.2,0.3, 0.2], 
+#                [0.1,0.1,0.1, 0.1],
+#                 [0.3,0.3,0.3, 0.9]])
 
 
-w2 = np.array([[0.0,0.0,0.0,0.0],
-                 [0.1,0.1,0.1,0.2], 
-                 [0.1,0.1,0.1,0.0],
-                 [0.2,0.2,0.2,-0.1]])
+# w2 = np.array([[0.0,0.0,0.0,0.0],
+#                  [0.1,0.1,0.1,0.2], 
+#                  [0.1,0.1,0.1,0.0],
+#                  [0.2,0.2,0.2,-0.1]])
 
-w3 = np.array([[1.5,1.2,1.0,0.0,-0.2], 
-                [0.0,0.8,0.1,0.0, -0.1]])
+# w3 = np.array([[1.5,1.2,1.0,0.0,-0.2], 
+#                 [0.0,0.8,0.1,0.0, -0.1]])
 
 
 for e in range(epochs):
