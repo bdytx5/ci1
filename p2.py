@@ -9,6 +9,46 @@ import math
 
 
 
+# with open('train-labels-idx1-ubyte', 'rb') as f:
+#     data = np.fromfile(f, dtype=np.dtype(np.uint8).newbyteorder('>'))[8:6008]
+
+# labs = np.zeros(shape=(10,10))
+
+# for i in range(10):
+#     for j in range(10):
+#         if i == j:
+#             labs[i][j] = 1
+
+
+
+# y = []
+# yindexes = []
+# yc = np.zeros((10))
+# for i in range(6000):
+#     if(yc[data[i]] < 200):
+#         y.append(labs[data[i]])
+#         np.append(y, labs[data[i]]) 
+#         yc[data[i]] = yc[data[i]] + 1
+#         yindexes.append(i)
+# yindexes = np.array(yindexes)
+# y = np.array(y)
+
+# with open('train-images-idx3-ubyte','rb') as f:
+#     magic, size = struct.unpack(">II", f.read(8))
+#     nrows, ncols = struct.unpack(">II", f.read(8))
+#     data = np.fromfile(f, dtype=np.dtype(np.uint8).newbyteorder('>'))
+#     data = data.reshape((size, nrows, ncols))
+
+# import matplotlib.pyplot as plt
+
+# x = []
+# for dex in yindexes:
+#     im = data[dex,:,:]
+#     res = cv2.resize(im, dsize=(14, 14), interpolation=cv2.INTER_CUBIC)
+#     x.append(np.append(res.flatten(),1))
+# x = np.array(x)
+
+
 with open('train-labels-idx1-ubyte', 'rb') as f:
     data = np.fromfile(f, dtype=np.dtype(np.uint8).newbyteorder('>'))[8:6008]
 
@@ -19,18 +59,9 @@ for i in range(10):
         if i == j:
             labs[i][j] = 1
 
-
-
 y = []
-yindexes = []
-yc = np.zeros((10))
 for i in range(6000):
-    if(yc[data[i]] < 200):
-        y.append(labs[data[i]])
-        np.append(y, labs[data[i]]) 
-        yc[data[i]] = yc[data[i]] + 1
-        yindexes.append(i)
-yindexes = np.array(yindexes)
+    y.append(labs[data[i]])
 y = np.array(y)
 
 with open('train-images-idx3-ubyte','rb') as f:
@@ -42,15 +73,11 @@ with open('train-images-idx3-ubyte','rb') as f:
 import matplotlib.pyplot as plt
 
 x = []
-for dex in yindexes:
+for dex in range(6000):
     im = data[dex,:,:]
     res = cv2.resize(im, dsize=(14, 14), interpolation=cv2.INTER_CUBIC)
     x.append(np.append(res.flatten(),1))
 x = np.array(x)
-
-
-
-
 
 
 with open('t10k-labels-idx1-ubyte', 'rb') as f:
@@ -62,7 +89,7 @@ with open('t10k-labels-idx1-ubyte', 'rb') as f:
 
 
 def eee(val):
-    return np.exp(val)
+    return np.exp(np.clip(val, -709,709))
 
 
 
@@ -80,11 +107,11 @@ def tanh(x, derive=False): # x is the input, derive is do derivative or not
 
 
 epochs = 100
-eta = 0.01 # learning rate
+eta = 0.1 # learning rate
 
 
 w1 = np.random.normal(0,2,(100, 197))
-w2 = np.random.normal(0,2,(10, 101))
+w2 = np.random.normal(0,1,(10, 101))
 
 
 
@@ -92,7 +119,7 @@ w2 = np.random.normal(0,2,(10, 101))
 
 for e in range(epochs):
     ee = 0 # error
-    for i in range(2000):
+    for i in range(6000):
         # layer 1
         v1 = np.dot(x[i, :], np.transpose(w1))
         y1 = tanh(v1)
@@ -104,8 +131,9 @@ for e in range(epochs):
         errphiprimev2 = err*tanh(y2,derive=True)
         dEdW2 = np.dot(np.transpose(np.array([errphiprimev2])), np.array([np.append(y1,1)])) # e/dw2
 
-        errphiprimev2 = np.array(np.dot(errphiprimev2, w2))[0:(w2.shape[1] - 1)] # exclude bias since its not part of de/dy2
-        errphiprimev2w2phiprimev1 = errphiprimev2 * tanh(y1, True)
+        errphiprimev2w2 = np.array(np.dot(errphiprimev2, w2))[0:(w2.shape[1] - 1)] # exclude bias since its not part of de/dy2
+        errphiprimev2w2phiprimev1 = errphiprimev2w2 * tanh(y1, derive=True)
+        
         dEdW1 = np.dot(np.transpose(np.array([errphiprimev2w2phiprimev1])), np.array([x[i, :]]))
  
 
@@ -115,17 +143,47 @@ for e in range(epochs):
 
         w2 = w2 - eta*dEdW2
         w1 = w1 - eta*dEdW1
-    print(e)
+    print(ee)
  
 print('w1----',w1)
 print('w2----',w2)
 print(ee)
 
 
+with open('t10k-labels-idx1-ubyte', 'rb') as f:
+    data = np.fromfile(f, dtype=np.dtype(np.uint8).newbyteorder('>'))[8:2008]
+
+labs = np.zeros(shape=(10,10))
+
+for i in range(10):
+    for j in range(10):
+        if i == j:
+            labs[i][j] = 1
+
+y = []
+for i in range(2000):
+    y.append(labs[data[i]])
+y = np.array(y)
+
+with open('t10k-images-idx3-ubyte','rb') as f:
+    magic, size = struct.unpack(">II", f.read(8))
+    nrows, ncols = struct.unpack(">II", f.read(8))
+    data = np.fromfile(f, dtype=np.dtype(np.uint8).newbyteorder('>'))
+    data = data.reshape((size, nrows, ncols))
+
+import matplotlib.pyplot as plt
+
+x = []
+for dex in range(2000):
+    im = data[dex,:,:]
+    res = cv2.resize(im, dsize=(14, 14), interpolation=cv2.INTER_CUBIC)
+    x.append(np.append(res.flatten(),1))
+x = np.array(x)
+
+
 conf = np.array(np.zeros((10,10)))
-for i in range(50):
+for i in range(2000):
         # layer 1
-    i = i + 50
     v1 = np.dot(x[i, :], np.transpose(w1))
     y1 = tanh(v1)
         # layer 2
