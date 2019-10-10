@@ -131,7 +131,7 @@ for e in range(epochs):
         errphiprimev2 = err*tanh(y2,derive=True)
         dEdW2 = np.dot(np.transpose(np.array([errphiprimev2])), np.array([np.append(y1,1)])) # e/dw2
 
-        errphiprimev2w2 = np.array(np.dot(errphiprimev2, w2))[0:(w2.shape[1] - 1)] # exclude bias since its not part of de/dy2
+        errphiprimev2w2 = np.array(np.dot(np.array(errphiprimev2), w2))[0:(w2.shape[1] - 1)] # exclude bias since its not part of de/dy2
         errphiprimev2w2phiprimev1 = errphiprimev2w2 * tanh(y1, derive=True)
         
         dEdW1 = np.dot(np.transpose(np.array([errphiprimev2w2phiprimev1])), np.array([x[i, :]]))
