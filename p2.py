@@ -89,7 +89,7 @@ with open('t10k-labels-idx1-ubyte', 'rb') as f:
 
 
 def eee(val):
-    return np.exp(np.clip(val, -709,709))
+    return np.exp(val)
 
 
 
@@ -113,7 +113,9 @@ eta = 0.1 # learning rate
 w1 = np.random.normal(0,2,(100, 197))
 w2 = np.random.normal(0,1,(10, 101))
 
-
+bw1 = np.array(np.zeros((6001,100,197)))
+bw2 = np.array(np.zeros((6001,10,101)))
+B = 0.5
 
 
 
@@ -141,8 +143,10 @@ for e in range(epochs):
 
         # adjustments
 
-        w2 = w2 - eta*dEdW2
-        w1 = w1 - eta*dEdW1
+        w2 = w2 - (bw2[i] + eta*dEdW2)
+        w1 = w1 - (bw1[i]+ eta*dEdW1)
+        bw1[i+1] = B*eta*dEdW1
+        bw2[i+1] = B*eta*dEdW2
     print(ee)
  
 print('w1----',w1)
