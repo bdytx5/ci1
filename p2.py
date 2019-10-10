@@ -1,54 +1,13 @@
 import numpy as np
 import struct
-import cv2
 import numpy as np
 import random
 import math
+import cv2
 
 
 
-
-
-# with open('train-labels-idx1-ubyte', 'rb') as f:
-#     data = np.fromfile(f, dtype=np.dtype(np.uint8).newbyteorder('>'))[8:6008]
-
-# labs = np.zeros(shape=(10,10))
-
-# for i in range(10):
-#     for j in range(10):
-#         if i == j:
-#             labs[i][j] = 1
-
-
-
-# y = []
-# yindexes = []
-# yc = np.zeros((10))
-# for i in range(6000):
-#     if(yc[data[i]] < 200):
-#         y.append(labs[data[i]])
-#         np.append(y, labs[data[i]]) 
-#         yc[data[i]] = yc[data[i]] + 1
-#         yindexes.append(i)
-# yindexes = np.array(yindexes)
-# y = np.array(y)
-
-# with open('train-images-idx3-ubyte','rb') as f:
-#     magic, size = struct.unpack(">II", f.read(8))
-#     nrows, ncols = struct.unpack(">II", f.read(8))
-#     data = np.fromfile(f, dtype=np.dtype(np.uint8).newbyteorder('>'))
-#     data = data.reshape((size, nrows, ncols))
-
-# import matplotlib.pyplot as plt
-
-# x = []
-# for dex in yindexes:
-#     im = data[dex,:,:]
-#     res = cv2.resize(im, dsize=(14, 14), interpolation=cv2.INTER_CUBIC)
-#     x.append(np.append(res.flatten(),1))
-# x = np.array(x)
-
-
+samples = 2000
 with open('train-labels-idx1-ubyte', 'rb') as f:
     data = np.fromfile(f, dtype=np.dtype(np.uint8).newbyteorder('>'))[8:6008]
 
@@ -59,9 +18,18 @@ for i in range(10):
         if i == j:
             labs[i][j] = 1
 
+
+
 y = []
+yindexes = []
+yc = np.zeros((10))
 for i in range(6000):
-    y.append(labs[data[i]])
+    if(yc[data[i]] < 200):
+        y.append(labs[data[i]])
+        np.append(y, labs[data[i]]) 
+        yc[data[i]] = yc[data[i]] + 1
+        yindexes.append(i)
+yindexes = np.array(yindexes)
 y = np.array(y)
 
 with open('train-images-idx3-ubyte','rb') as f:
@@ -73,15 +41,42 @@ with open('train-images-idx3-ubyte','rb') as f:
 import matplotlib.pyplot as plt
 
 x = []
-for dex in range(6000):
+for dex in yindexes:
     im = data[dex,:,:]
     res = cv2.resize(im, dsize=(14, 14), interpolation=cv2.INTER_CUBIC)
     x.append(np.append(res.flatten(),1))
-x = np.array(x)
+x = np.array(x)/255
 
 
-with open('t10k-labels-idx1-ubyte', 'rb') as f:
-    data = np.fromfile(f, dtype=np.dtype(np.uint8).newbyteorder('>'))[8:2008]
+# with open('train-labels-idx1-ubyte', 'rb') as f:
+#     data = np.fromfile(f, dtype=np.dtype(np.uint8).newbyteorder('>'))[8:samples+8]
+
+# labs = np.zeros(shape=(10,10))
+
+# for i in range(10):
+#     for j in range(10):
+#         if i == j:
+#             labs[i][j] = 1
+
+# y = []
+# for i in range(samples):
+#     y.append(labs[data[i]])
+# y = np.array(y)
+
+# with open('train-images-idx3-ubyte','rb') as f:
+#     magic, size = struct.unpack(">II", f.read(8))
+#     nrows, ncols = struct.unpack(">II", f.read(8))
+#     data = np.fromfile(f, dtype=np.dtype(np.uint8).newbyteorder('>'))
+#     data = data.reshape((size, nrows, ncols))
+
+# import matplotlib.pyplot as plt
+
+# x = []
+# for dex in range(samples):
+#     im = data[dex,:,:]
+#     x.append(np.append(im.flatten(),1))
+# x = np.array(x)/255
+
 
 
 
@@ -106,22 +101,22 @@ def tanh(x, derive=False): # x is the input, derive is do derivative or not
     return ( 1.0 / (1.0 + eee(-x)))
 
 
-epochs = 100
+epochs = 300
 eta = 0.1 # learning rate
 
 
 w1 = np.random.normal(0,2,(100, 197))
 w2 = np.random.normal(0,1,(10, 101))
 
-bw1 = np.array(np.zeros((6001,100,197)))
-bw2 = np.array(np.zeros((6001,10,101)))
+bw1 = np.array(np.zeros((samples+1,100,197)))
+bw2 = np.array(np.zeros((samples+1,10,101)))
 B = 0.5
 
 
 
 for e in range(epochs):
     ee = 0 # error
-    for i in range(6000):
+    for i in range(samples):
         # layer 1
         v1 = np.dot(x[i, :], np.transpose(w1))
         y1 = tanh(v1)
@@ -145,8 +140,8 @@ for e in range(epochs):
 
         w2 = w2 - (bw2[i] + eta*dEdW2)
         w1 = w1 - (bw1[i]+ eta*dEdW1)
-        bw1[i+1] = B*eta*dEdW1
-        bw2[i+1] = B*eta*dEdW2
+        bw2[i+1] = B*(bw2[i] + eta*dEdW2)
+        bw1[i+1] = B*(bw1[i]+ eta*dEdW1)
     print(ee)
  
 print('w1----',w1)
@@ -181,8 +176,9 @@ x = []
 for dex in range(2000):
     im = data[dex,:,:]
     res = cv2.resize(im, dsize=(14, 14), interpolation=cv2.INTER_CUBIC)
+
     x.append(np.append(res.flatten(),1))
-x = np.array(x)
+x = np.array(x)/255
 
 
 conf = np.array(np.zeros((10,10)))
