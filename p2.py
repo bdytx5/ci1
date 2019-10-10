@@ -21,16 +21,17 @@ for i in range(10):
 
 
 
-y = np.zeros(shape=(2000,10))
+y = []
 yindexes = []
 yc = np.zeros((10))
 for i in range(6000):
-    if(yc[data[i]] < 200): 
+    if(yc[data[i]] < 200):
+        y.append(labs[data[i]])
         np.append(y, labs[data[i]]) 
         yc[data[i]] = yc[data[i]] + 1
-        yindexes.append(i+8)
+        yindexes.append(i)
 yindexes = np.array(yindexes)
-
+y = np.array(y)
 
 with open('train-images-idx3-ubyte','rb') as f:
     magic, size = struct.unpack(">II", f.read(8))
@@ -39,7 +40,6 @@ with open('train-images-idx3-ubyte','rb') as f:
     data = data.reshape((size, nrows, ncols))
 
 import matplotlib.pyplot as plt
-
 
 x = []
 for dex in yindexes:
@@ -62,7 +62,7 @@ with open('t10k-labels-idx1-ubyte', 'rb') as f:
 
 
 def eee(val):
-    return np.exp(np.clip(val,-708,708))
+    return np.exp(val)
 
 
 
@@ -79,9 +79,8 @@ def tanh(x, derive=False): # x is the input, derive is do derivative or not
     return ( 1.0 / (1.0 + eee(-x)))
 
 
-epochs = 10
-
-eta = 0.1 # learning rate
+epochs = 100
+eta = 0.01 # learning rate
 
 
 w1 = np.random.normal(0,2,(100, 197))
@@ -103,7 +102,6 @@ for e in range(epochs):
         #backprop 
         err = -np.array(y[i, :]-y2)
         errphiprimev2 = err*tanh(y2,derive=True)
-
         dEdW2 = np.dot(np.transpose(np.array([errphiprimev2])), np.array([np.append(y1,1)])) # e/dw2
 
         errphiprimev2 = np.array(np.dot(errphiprimev2, w2))[0:(w2.shape[1] - 1)] # exclude bias since its not part of de/dy2
