@@ -5,12 +5,15 @@ import numpy as np
 import random
 import math
 import matplotlib.pyplot as plt
+# from skimage.transform import resize
+# res = resize(im,(14, 14))
 
 
 
 
 
-with open('train-labels-idx1-ubyte', 'rb') as f:
+
+with open('/Users/macbookpro/Desktop/ci1/train-labels-idx1-ubyte', 'rb') as f:
     data = np.fromfile(f, dtype=np.dtype(np.uint8).newbyteorder('>'))[8:6008]
 
 labs = np.zeros(shape=(10,10))
@@ -34,7 +37,7 @@ for i in range(6000):
 yindexes = np.array(yindexes)
 y = np.array(y)
 
-with open('train-images-idx3-ubyte','rb') as f:
+with open('/Users/macbookpro/Desktop/ci1/train-images-idx3-ubyte','rb') as f:
     magic, size = struct.unpack(">II", f.read(8))
     nrows, ncols = struct.unpack(">II", f.read(8))
     data = np.fromfile(f, dtype=np.dtype(np.uint8).newbyteorder('>'))
@@ -107,8 +110,8 @@ def tanh(x, derive=False): # x is the input, derive is do derivative or not
     return ( 1.0 / (1.0 + eee(-x)))
 
 
-epochs = 1000
-eta = 0.1 # learning rate
+epochs = 1000000
+eta = 0.01 # learning rate
 
 
 w1 = np.random.normal(0,2,(100, 197))
@@ -116,7 +119,7 @@ w2 = np.random.normal(0,1,(10, 101))
 
 bw1 = np.array(np.zeros((6001,100,197)))
 bw2 = np.array(np.zeros((6001,10,101)))
-B = 0.5
+B = 0.9
 
 actualEpochs = 0
 ee = np.zeros(epochs)
@@ -157,7 +160,7 @@ print('w2----',w2)
 
 
 
-with open('t10k-labels-idx1-ubyte', 'rb') as f:
+with open('/Users/macbookpro/Desktop/ci1/t10k-labels-idx1-ubyte', 'rb') as f:
     data = np.fromfile(f, dtype=np.dtype(np.uint8).newbyteorder('>'))[8:2008]
 
 labs = np.zeros(shape=(10,10))
@@ -172,7 +175,7 @@ for i in range(2000):
     y.append(labs[data[i]])
 y = np.array(y)
 
-with open('t10k-images-idx3-ubyte','rb') as f:
+with open('/Users/macbookpro/Desktop/ci1/t10k-images-idx3-ubyte','rb') as f:
     magic, size = struct.unpack(">II", f.read(8))
     nrows, ncols = struct.unpack(">II", f.read(8))
     data = np.fromfile(f, dtype=np.dtype(np.uint8).newbyteorder('>'))
@@ -205,6 +208,10 @@ for i in range(2000):
 
 print(s/2000)
 print(conf)
+for i in range(10):
+    print(i,conf[i])
+print(actualEpochs)
+
 plt.plot(ee[0:actualEpochs])
 plt.ylabel('error')
 plt.xlabel('epochs')
