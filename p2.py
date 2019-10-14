@@ -37,45 +37,10 @@ with open('/Users/macbookpro/Desktop/ci1/train-images-idx3-ubyte','rb') as f:
 x = []
 for dex in yindexes:
     im = data[dex,:,:]
-    res = resize(im,(14, 14))
-    x.append(np.append(res.flatten(),1))
+    x.append(np.append(im.flatten(),1))
 x = np.array(x)/255
 
 
-
-
-
-# alt 
-
-# with open('train-labels-idx1-ubyte', 'rb') as f:
-#     data = np.fromfile(f, dtype=np.dtype(np.uint8).newbyteorder('>'))[8:6008]
-
-# labs = np.zeros(shape=(10,10))
-
-# for i in range(10):
-#     for j in range(10):
-#         if i == j:
-#             labs[i][j] = 1
-
-# y = []
-# for i in range(6000):
-#     y.append(labs[data[i]])
-# y = np.array(y)
-
-# with open('train-images-idx3-ubyte','rb') as f:
-#     magic, size = struct.unpack(">II", f.read(8))
-#     nrows, ncols = struct.unpack(">II", f.read(8))
-#     data = np.fromfile(f, dtype=np.dtype(np.uint8).newbyteorder('>'))
-#     data = data.reshape((size, nrows, ncols))
-
-# import matplotlib.pyplot as plt
-
-# x = []
-# for dex in range(6000):
-#     im = data[dex,:,:]
-#     res = cv2.resize(im, dsize=(14, 14), interpolation=cv2.INTER_CUBIC)
-#     x.append(np.append(res.flatten(),1))
-# x = np.array(x)/255
 
 
 
@@ -100,9 +65,9 @@ def tanh(x, derive=False):
 epochs = 1000000
 eta = 0.5 # learning rate
 B = 0.5
-w1 = np.random.normal(0,1,(100, 197))
+w1 = np.random.normal(0,1,(100, 785))
 w2 = np.random.normal(0,1,(10, 101))
-bw1 = np.array(np.zeros((2000,100,197)))
+bw1 = np.array(np.zeros((2000,100,785)))
 bw2 = np.array(np.zeros((2000,10,101)))
 
 
@@ -166,8 +131,7 @@ import matplotlib.pyplot as plt
 x = []
 for dex in range(2000):
     im = data[dex,:,:]
-    res = resize(im,(14, 14))
-    x.append(np.append(res.flatten(),1))
+    x.append(np.append(im.flatten(),1))
 x = np.array(x)/255
 
 s = 0
@@ -187,8 +151,7 @@ for i in range(2000):
 
 print(s/2000)
 print(conf)
-for i in range(10):
-    print(i,conf[i])
+
 print(actualEpochs)
 
 plt.plot(ee[0:actualEpochs])
