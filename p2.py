@@ -98,8 +98,8 @@ def tanh(x, derive=False):
     return ( 1.0 / (1.0 + np.exp(-x)))
 
 epochs = 1000000
-eta = 0.1 # learning rate
-B = 0.9
+eta = 0.5 # learning rate
+B = 0.5
 w1 = np.random.normal(0,1,(100, 197))
 w2 = np.random.normal(0,1,(10, 101))
 bw1 = np.array(np.zeros((2000,100,197)))
