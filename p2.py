@@ -68,10 +68,10 @@ def tanh(x, derive=False):
 epochs = 1000000
 eta = 0.5 # learning rate
 B = 0.5
-w1 = np.random.normal(0,1,(50, 197))
-w2 = np.random.normal(0,1,(10, 51))
-bw1 = np.array(np.zeros((2000,50,197)))
-bw2 = np.array(np.zeros((2000,10,51)))
+w1 = np.random.normal(0,1,(200, 197))
+w2 = np.random.normal(0,1,(10, 201))
+bw1 = np.array(np.zeros((2000,200,197)))
+bw2 = np.array(np.zeros((2000,10,201)))
 
 
 actualEpochs = 0
