@@ -4,7 +4,7 @@ import numpy as np
 import random
 import math
 import matplotlib.pyplot as plt
-from skimage.transform import resize
+import cv2
 import matplotlib.pyplot as plt
 
 labs = np.zeros(shape=(10,10))
@@ -13,7 +13,7 @@ for i in range(10):
         if i == j:
             labs[i][j] = 1
 
-with open('/Users/macbookpro/Desktop/ci1/train-labels-idx1-ubyte', 'rb') as f:
+with open('/Users/brettyoung/Desktop/ci1/train-labels-idx1-ubyte', 'rb') as f:
     data = np.fromfile(f, dtype=np.dtype(np.uint8).newbyteorder('>'))[8:6008]
 
 y = []
@@ -28,7 +28,7 @@ for i in range(6000):
 yindexes = np.array(yindexes)
 y = np.array(y)
 
-with open('/Users/macbookpro/Desktop/ci1/train-images-idx3-ubyte','rb') as f:
+with open('/Users/brettyoung/Desktop/ci1/train-images-idx3-ubyte','rb') as f:
     magic, size = struct.unpack(">II", f.read(8))
     nrows, ncols = struct.unpack(">II", f.read(8))
     data = np.fromfile(f, dtype=np.dtype(np.uint8).newbyteorder('>'))
@@ -37,7 +37,7 @@ with open('/Users/macbookpro/Desktop/ci1/train-images-idx3-ubyte','rb') as f:
 x = []
 for dex in yindexes:
     im = data[dex,:,:]
-    res = resize(im,(14, 14))
+    res = cv2.resize(im, dsize=(14, 14), interpolation=cv2.INTER_CUBIC)
     x.append(np.append(res.flatten(),1))
 x = np.array(x)/255
 
@@ -81,7 +81,7 @@ x = np.array(x)/255
 
 
 
-def tanh2(x, derive=False): # x is the input, derive is do derivative or not
+def tanh(x, derive=False): # x is the input, derive is do derivative or not
     if derive:
         return (1.0 - x**2)
                            # depends on how you call the function
@@ -92,25 +92,37 @@ def tanh2(x, derive=False): # x is the input, derive is do derivative or not
 def eee(val):
     return np.exp(val)
 
-def tanh(x, derive=False): 
+def tanh2(x, derive=False): 
     if derive: 
         return x * (1.0 - x) 
     return ( 1.0 / (1.0 + np.exp(-x)))
 
 epochs = 1000000
-eta = 0.1 # learning rate
-B = 0.9
+eta = 0.001 # learning rate
+B = 0.7
+bs = 50
+
 w1 = np.random.normal(0,1,(100, 197))
 w2 = np.random.normal(0,1,(10, 101))
-bw1 = np.array(np.zeros((2000,100,197)))
-bw2 = np.array(np.zeros((2000,10,101)))
+bw1 = np.array(np.zeros((2001,100,197)))
+bw2 = np.array(np.zeros((2001,10,101)))
 
-
+mbw1 = np.array(np.zeros((100,197)))
+mbw2 = np.array(np.zeros((10,101)))
+bc = 0
 actualEpochs = 0
 ee = np.zeros(epochs)
 for e in range(epochs):
     actualEpochs = e
     for i in range(2000):
+        bc = bc + 1
+        if bc == bs:
+            bc = 0
+            w1 = w1 - mbw1
+            w2 = w2 - mbw2
+            mbw1 = np.array(np.zeros((100,197)))
+            mbw2 = np.array(np.zeros((10,101)))
+            
         # layer 1
         v1 = np.dot(x[i, :], np.transpose(w1))
         y1 = tanh(v1)
@@ -126,12 +138,14 @@ for e in range(epochs):
         dEdW1 = np.dot(np.transpose(np.array([errphiprimev2w2phiprimev1])), np.array([x[i, :]]))
         ee[e] = ee[e] + ((1.0/2.0) * ((y[i, :] - y2)**2).mean(axis=0))
         # adjustments
-        w2 = w2 - (bw2[i] + eta*dEdW2)
-        w1 = w1 - (bw1[i]+ eta*dEdW1)
-        bw1[i] = B*(bw1[i]+ eta*dEdW1)
-        bw2[i] = B*(bw2[i] + eta*dEdW2)
+        mbw2 = mbw2 + (bw2[i] + eta*dEdW2)
+        mbw1 = mbw1 + (bw1[i]+ eta*dEdW1)
+        bw1[i+1] = B*(bw1[i]+ eta*dEdW1)
+        bw2[i+1] = B*(bw2[i] + eta*dEdW2)
     print(ee[e])
-    if(ee[e] < 1):
+
+    print(ee[e])
+    if(ee[e] < 3):
         print('total epochs ', e)
         break
  
@@ -140,7 +154,7 @@ print('w2----',w2)
 
 
 
-with open('/Users/macbookpro/Desktop/ci1/t10k-labels-idx1-ubyte', 'rb') as f:
+with open('/Users/brettyoung/Desktop/ci1/t10k-labels-idx1-ubyte', 'rb') as f:
     data = np.fromfile(f, dtype=np.dtype(np.uint8).newbyteorder('>'))[8:2008]
 
 labs = np.zeros(shape=(10,10))
@@ -155,7 +169,7 @@ for i in range(2000):
     y.append(labs[data[i]])
 y = np.array(y)
 
-with open('/Users/macbookpro/Desktop/ci1/t10k-images-idx3-ubyte','rb') as f:
+with open('/Users/brettyoung/Desktop/ci1/t10k-images-idx3-ubyte','rb') as f:
     magic, size = struct.unpack(">II", f.read(8))
     nrows, ncols = struct.unpack(">II", f.read(8))
     data = np.fromfile(f, dtype=np.dtype(np.uint8).newbyteorder('>'))
@@ -166,7 +180,7 @@ import matplotlib.pyplot as plt
 x = []
 for dex in range(2000):
     im = data[dex,:,:]
-    res = resize(im,(14, 14))
+    res = cv2.resize(im, dsize=(14, 14), interpolation=cv2.INTER_CUBIC)
     x.append(np.append(res.flatten(),1))
 x = np.array(x)/255
 
