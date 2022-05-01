@@ -6,7 +6,7 @@ import random
 import math
 
 
-
+# NEURAL NETWORK FROM SCRATCH!!
 
 
 with open('train-labels-idx1-ubyte', 'rb') as f:
